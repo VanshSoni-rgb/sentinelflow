@@ -1,0 +1,11 @@
+{
+  "title": "SentinelFlow Fraud Operations",
+  "panels": [
+    {"type":"stat","title":"Fraud Rate %","gridPos":{"h":4,"w":6,"x":0,"y":0}},
+    {"type":"timeseries","title":"Scores / min","gridPos":{"h":8,"w":12,"x":0,"y":4}},
+    {"type":"table","title":"Top Alerts","gridPos":{"h":8,"w":12,"x":12,"y":4}}
+  ],
+  "uid": "sentinel-ops",
+  "schemaVersion": 39,
+  "version": 1
+}

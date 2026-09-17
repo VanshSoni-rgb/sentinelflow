@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: sentinelflow-db
+    environment:
+      POSTGRES_USER: sentinel
+      POSTGRES_PASSWORD: sentinel_dev
+      POSTGRES_DB: sentinelflow
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./sql/schema:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sentinel"]
+      interval: 5s
+      retries: 10
+
+  api:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://sentinel:sentinel_dev@postgres:5432/sentinelflow
+      MODEL_PATH: /app/models/fraud_xgb_v21.json
+    volumes:
+      - ./:/app
+    command: uvicorn sentinelflow.api.main:app --host 0.0.0.0 --port 8000
+    profiles: ["api"]
+
+  streamlit:
+    build: .
+    depends_on: [postgres]
+    ports:
+      - "8501:8501"
+    environment:
+      DATABASE_URL: postgresql://sentinel:sentinel_dev@postgres:5432/sentinelflow
+    volumes:
+      - ./:/app
+    command: streamlit run dashboard/streamlit_app.py --server.address=0.0.0.0
+    profiles: ["ui"]
+
+  prometheus:
+    image: prom/prometheus:v2.52
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./infra/prometheus.yml:/etc/prometheus/prometheus.yml
+    profiles: ["monitoring"]
+
+  grafana:
+    image: grafana/grafana:10.4.0
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: sentinel
+    volumes:
+      - ./infra/grafana:/var/lib/grafana/dashboards
+    depends_on: [prometheus]
+    profiles: ["monitoring"]
+
+volumes:
+  pgdata:

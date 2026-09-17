@@ -1,0 +1,43 @@
+# Data - 1M local only
+data/transactions_1m.*
+data/transactions_smoke.*
+data/*.parquet
+data/*.csv
+!data/samples/
+!data/samples/*.csv
+exports/
+powerbi/*.csv
+!powerbi/README.md
+
+# Models
+models/*.json
+models/*.pkl
+models/*.ubj
+!models/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+.env
+dist/
+build/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.ipynb_checkpoints
+
+# IDE
+.vscode/
+.idea/
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Streamlit
+.streamlit/secrets.toml
